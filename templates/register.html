@@ -2,15 +2,15 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 <div class="auth-wrapper" style="padding:40px 16px;">
-  <div class="auth-card" style="max-width:560px;">
+  <div class="auth-card" style="max-width:620px;">
     <h3 class="text-white fw-700 mb-1">Create Your Profile</h3>
-    <p class="text-muted small mb-4">Fill in your details to get personalized career guidance</p>
+    <p class="text-muted small mb-4">For <strong style="color:#00E5C3">all undergraduate & postgraduate students</strong></p>
     {% if error %}<div class="alert alert-danger py-2 small">{{ error }}</div>{% endif %}
     <form method="POST">
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label text-muted small">Full Name</label>
-          <input type="text" name="name" class="form-control form-control-dark" required placeholder="Arjun Sharma"/>
+          <input type="text" name="name" class="form-control form-control-dark" required placeholder="Your name"/>
         </div>
         <div class="col-md-6">
           <label class="form-label text-muted small">Email</label>
@@ -21,41 +21,69 @@
           <input type="password" name="password" class="form-control form-control-dark" required/>
         </div>
         <div class="col-md-6">
-          <label class="form-label text-muted small">CGPA</label>
+          <label class="form-label text-muted small">CGPA / Percentage</label>
           <input type="number" name="cgpa" step="0.1" min="0" max="10" class="form-control form-control-dark" required placeholder="8.4"/>
         </div>
         <div class="col-md-6">
           <label class="form-label text-muted small">Degree</label>
-          <input type="text" name="degree" class="form-control form-control-dark" value="B.Tech"/>
+          <select name="degree" id="degreeSelect" class="form-control form-control-dark" required onchange="loadBranches()">
+            <option value="">-- Select Degree --</option>
+            {% for deg in courses.keys() %}
+            <option value="{{ deg }}">{{ deg }}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="col-md-6">
-          <label class="form-label text-muted small">Branch</label>
-          <input type="text" name="branch" class="form-control form-control-dark" value="AI & Data Science"/>
+          <label class="form-label text-muted small">Branch / Specialization</label>
+          <select name="branch" id="branchSelect" class="form-control form-control-dark" required>
+            <option value="">-- Select Degree First --</option>
+          </select>
         </div>
         <div class="col-12">
-          <label class="form-label text-muted small">Skills <span class="text-cyan">(comma separated)</span></label>
-          <input type="text" name="skills" class="form-control form-control-dark" placeholder="Python, SQL, Pandas, NumPy"/>
+          <label class="form-label text-muted small">Skills <span style="color:#00E5C3">(comma separated)</span></label>
+          <input type="text" name="skills" class="form-control form-control-dark" placeholder="Python, SQL, AutoCAD, Legal Research..."/>
         </div>
         <div class="col-md-6">
           <label class="form-label text-muted small">Certifications</label>
-          <input type="text" name="certifications" class="form-control form-control-dark" placeholder="Google ML, AWS..."/>
+          <input type="text" name="certifications" class="form-control form-control-dark" placeholder="Google ML, AWS, Bar Exam..."/>
         </div>
         <div class="col-md-6">
-          <label class="form-label text-muted small">Interests</label>
-          <input type="text" name="interests" class="form-control form-control-dark" placeholder="Deep Learning, NLP..."/>
+          <label class="form-label text-muted small">Internships Completed</label>
+          <input type="text" name="internships" class="form-control form-control-dark" placeholder="TCS intern, Law firm intern..."/>
         </div>
         <div class="col-md-6">
           <label class="form-label text-muted small">Projects</label>
-          <input type="text" name="projects" class="form-control form-control-dark" placeholder="Chatbot, Price Predictor..."/>
+          <input type="text" name="projects" class="form-control form-control-dark" placeholder="Bridge design, Chatbot, Case study..."/>
         </div>
         <div class="col-md-6">
+          <label class="form-label text-muted small">Extra Courses / Online Learning</label>
+          <input type="text" name="extra_courses" class="form-control form-control-dark" placeholder="Coursera ML, NPTEL Civil..."/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted small">Languages Known</label>
+          <input type="text" name="languages" class="form-control form-control-dark" placeholder="English, Tamil, Hindi..."/>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted small">Interests</label>
+          <input type="text" name="interests" class="form-control form-control-dark" placeholder="AI, Architecture, Finance..."/>
+        </div>
+        <div class="col-12">
           <label class="form-label text-muted small">Achievements</label>
-          <input type="text" name="achievements" class="form-control form-control-dark" placeholder="Hackathon winner..."/>
+          <input type="text" name="achievements" class="form-control form-control-dark" placeholder="Hackathon winner, Moot court..."/>
         </div>
       </div>
       <button type="submit" class="btn btn-primary-glow w-100 mt-4">Create Account →</button>
     </form>
-    <p class="text-center text-muted small mt-3">Already have an account? <a href="/login" class="link-cyan">Login</a></p>
+    <p class="text-center text-muted small mt-3">Already registered? <a href="/login" class="link-cyan">Login</a></p>
   </div>
 </div>
+<script>
+async function loadBranches() {
+  const deg = document.getElementById("degreeSelect").value;
+  const res = await fetch(`/get_branches?degree=${deg}`);
+  const branches = await res.json();
+  const sel = document.getElementById("branchSelect");
+  sel.innerHTML = branches.map(b => `<option value="${b}">${b}</option>`).join("");
+}
+</script>
 {% endblock %}

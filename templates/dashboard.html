@@ -2,7 +2,6 @@
 {% block title %}Dashboard{% endblock %}
 {% block content %}
 <div class="container-fluid px-4 py-4">
-
   <!-- Profile card -->
   <div class="card-dark mb-4">
     <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -11,48 +10,72 @@
         <h4 class="text-white fw-700 mb-0">{{ student.name }}</h4>
         <p class="text-muted small mb-2">{{ student.degree }} · {{ student.branch }} · CGPA {{ student.cgpa }}</p>
         <div class="d-flex flex-wrap gap-1">
-          {% for s in student.skills %}
+          {% for s in student.skills[:6] %}
           <span class="badge-skill">{{ s }}</span>
           {% endfor %}
+          {% if student.skills|length > 6 %}
+          <span class="badge-skill">+{{ student.skills|length - 6 }} more</span>
+          {% endif %}
         </div>
+        {% if student.internships %}
+        <div class="mt-1">
+          {% for i in student.internships %}
+          <span style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#22C55E;border-radius:20px;padding:2px 10px;font-size:.7rem;margin:2px;">💼 {{ i }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
       <div class="text-center">
-        <div class="score-ring" data-score="{{ top_career.score }}">
-          <svg viewBox="0 0 80 80" width="80" height="80">
-            <circle cx="40" cy="40" r="34" fill="none" stroke="#2A2D52" stroke-width="7"/>
-            <circle cx="40" cy="40" r="34" fill="none" stroke="#00E5C3" stroke-width="7"
-              stroke-dasharray="{{ (top_career.score / 100 * 213.6)|round(1) }} 213.6"
-              stroke-linecap="round" transform="rotate(-90 40 40)"/>
-            <text x="40" y="44" fill="#F0F2FF" font-size="14" font-weight="700"
-              text-anchor="middle">{{ top_career.score }}%</text>
-          </svg>
-        </div>
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#2A2D52" stroke-width="7"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#00E5C3" stroke-width="7"
+            stroke-dasharray="{{ (top_career.score / 100 * 213.6)|round(1) }} 213.6"
+            stroke-linecap="round" transform="rotate(-90 40 40)"/>
+          <text x="40" y="44" fill="#F0F2FF" font-size="14" font-weight="700" text-anchor="middle">{{ top_career.score }}%</text>
+        </svg>
         <small class="text-muted">Top Match</small>
+      </div>
+      <div>
+        <a href="/edit_profile" class="btn btn-primary-glow btn-sm px-3">✏️ Edit Profile</a>
       </div>
     </div>
   </div>
 
   <!-- KPI row -->
   <div class="row g-3 mb-4">
-    {% for k in [
-      ("Career Match", top_career.score|string+"%", top_career.name, "cyan"),
-      ("Your Skills",  student.skills|length|string + " skills", "Acquired so far", "green"),
-      ("Top Career",   top_career.name, "Best fit for you", "indigo"),
-      ("CGPA Score",   student.cgpa, "Academic standing", "amber"),
-    ] %}
     <div class="col-6 col-lg-3">
-      <div class="kpi-card kpi-{{ k[3] }}">
-        <div class="kpi-label">{{ k[0] }}</div>
-        <div class="kpi-value">{{ k[1] }}</div>
-        <div class="kpi-sub">{{ k[2] }}</div>
+      <div class="kpi-card kpi-cyan">
+        <div class="kpi-label">Career Match</div>
+        <div class="kpi-value">{{ top_career.score }}%</div>
+        <div class="kpi-sub">{{ top_career.name }}</div>
       </div>
     </div>
-    {% endfor %}
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-green">
+        <div class="kpi-label">Your Skills</div>
+        <div class="kpi-value">{{ student.skills|length }}</div>
+        <div class="kpi-sub">Skills added</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-indigo">
+        <div class="kpi-label">Internships</div>
+        <div class="kpi-value">{{ student.internships|length }}</div>
+        <div class="kpi-sub">Completed</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-amber">
+        <div class="kpi-label">CGPA</div>
+        <div class="kpi-value">{{ student.cgpa }}</div>
+        <div class="kpi-sub">Academic score</div>
+      </div>
+    </div>
   </div>
 
   <!-- Career bars -->
-  <div class="card-dark">
-    <h5 class="text-white fw-700 mb-4">Career Match Overview</h5>
+  <div class="card-dark mb-4">
+    <h5 class="text-white fw-700 mb-4">Career Match for {{ student.branch }}</h5>
     {% for c in careers %}
     <div class="mb-3">
       <div class="d-flex justify-content-between mb-1">
@@ -65,11 +88,22 @@
     </div>
     {% endfor %}
     <div class="mt-4 d-flex gap-2 flex-wrap">
-      <a href="/careers" class="btn btn-primary-glow btn-sm px-4">View All Careers</a>
-      <a href="/skillgap" class="btn btn-outline-secondary btn-sm px-4">Skill Gap Analysis</a>
-      <a href="/roadmap" class="btn btn-outline-secondary btn-sm px-4">My Roadmap</a>
+      <a href="/careers"     class="btn btn-primary-glow btn-sm px-4">View All Careers</a>
+      <a href="/skillgap"    class="btn btn-outline-secondary btn-sm px-4">Skill Gap</a>
+      <a href="/roadmap"     class="btn btn-outline-secondary btn-sm px-4">Roadmap</a>
+      <a href="/edit_profile" class="btn btn-outline-secondary btn-sm px-4">✏️ Edit Profile</a>
     </div>
   </div>
 
+  {% if student.extra_courses %}
+  <div class="card-dark">
+    <h6 class="text-white fw-700 mb-3">📚 Extra Courses Completed</h6>
+    <div class="d-flex flex-wrap gap-2">
+      {% for c in student.extra_courses %}
+      <span style="background:rgba(91,94,244,.2);border:1px solid rgba(91,94,244,.4);color:#9b9eff;border-radius:8px;padding:4px 12px;font-size:.8rem;">{{ c }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
