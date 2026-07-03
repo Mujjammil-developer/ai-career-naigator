@@ -3,51 +3,70 @@
 {% block content %}
 <div class="container py-4" style="max-width:700px">
   <h4 class="text-white fw-700 mb-1">AI Career Chatbot</h4>
-  <p class="text-muted small mb-3">Ask anything about careers, certifications, and projects.</p>
+  <p class="text-muted small mb-3">
+    Hi <span style="color:#00E5C3">{{ student.name }}</span>! 
+    I'm your personal career assistant for 
+    <span style="color:#00E5C3">{{ student.degree }} {{ student.branch }}</span>. Ask me anything!
+  </p>
 
-  <!-- Starter chips -->
-  <div class="d-flex flex-wrap gap-2 mb-3">
-    {% for q in ["How to become an AI Engineer?","Which certifications should I do?","What projects should I build?","What is the salary of a Data Scientist?"] %}
-    <button class="chip-btn" onclick="sendMsg('{{ q }}')">{{ q }}</button>
-    {% endfor %}
+  <!-- Dynamic starter chips based on student's course -->
+  <div class="d-flex flex-wrap gap-2 mb-3" id="starterChips">
+    <button class="chip-btn" onclick="sendMsg('What are the best career options for {{ student.branch }} students?')">Best careers for {{ student.branch }}?</button>
+    <button class="chip-btn" onclick="sendMsg('What certifications should a {{ student.branch }} student do?')">Certifications for {{ student.branch }}?</button>
+    <button class="chip-btn" onclick="sendMsg('What projects should I build as a {{ student.branch }} student?')">Projects to build?</button>
+    <button class="chip-btn" onclick="sendMsg('What is the salary for {{ student.branch }} graduates in India?')">Salary in {{ student.branch }}?</button>
+    <button class="chip-btn" onclick="sendMsg('How to find internships for {{ student.branch }} students?')">How to get internship?</button>
+    <button class="chip-btn" onclick="sendMsg('What are higher study options after {{ student.degree }} {{ student.branch }}?')">Higher study options?</button>
   </div>
 
   <!-- Chat window -->
   <div class="chat-window" id="chatWindow">
     <div class="msg msg-bot">
-      Hi! I'm your AI Career Assistant 🚀 Ask me anything about your career path, skills, or certifications!
+      Hi {{ student.name }}! 👋 I'm your AI Career Assistant specialized for 
+      <strong>{{ student.degree }} {{ student.branch }}</strong> students. 
+      Ask me anything about careers, skills, certifications, internships, or higher studies!
     </div>
   </div>
 
   <!-- Input -->
   <div class="d-flex gap-2 mt-3">
     <input type="text" id="chatInput" class="form-control form-control-dark"
-      placeholder="Ask about careers, certifications, projects…"
+      placeholder="Ask about your career, skills, salary, internships..."
       onkeydown="if(event.key==='Enter') sendMsg()"/>
     <button class="btn btn-primary-glow px-4" onclick="sendMsg()">→</button>
   </div>
 </div>
 
 <script>
-async function sendMsg(preset){
-  const input=document.getElementById("chatInput");
-  const msg=preset||input.value.trim();
-  if(!msg) return;
-  input.value="";
-  addMsg(msg,"user");
-  const typing=addMsg("...","bot typing");
-  const res=await fetch("/chat_api",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:msg})});
-  const data=await res.json();
-  typing.remove();
-  addMsg(data.reply,"bot");
-  document.getElementById("chatWindow").scrollTop=9999;
+async function sendMsg(preset) {
+  const input = document.getElementById("chatInput");
+  const msg = preset || input.value.trim();
+  if (!msg) return;
+  input.value = "";
+  addMsg(msg, "user");
+  const typing = addMsg("Thinking...", "bot typing");
+  try {
+    const res = await fetch("/chat_api", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    typing.remove();
+    addMsg(data.reply, "bot");
+  } catch(e) {
+    typing.remove();
+    addMsg("Sorry, something went wrong. Please try again!", "bot");
+  }
+  document.getElementById("chatWindow").scrollTop = 9999;
 }
-function addMsg(text,role){
-  const div=document.createElement("div");
-  div.className="msg msg-"+(role.includes("bot")?"bot":"user");
-  div.textContent=text;
+
+function addMsg(text, role) {
+  const div = document.createElement("div");
+  div.className = "msg msg-" + (role.includes("bot") ? "bot" : "user");
+  div.textContent = text;
   document.getElementById("chatWindow").appendChild(div);
-  document.getElementById("chatWindow").scrollTop=9999;
+  document.getElementById("chatWindow").scrollTop = 9999;
   return div;
 }
 </script>
