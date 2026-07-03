@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
 import sqlite3
 from model import predict_career, get_skill_gap, get_roadmap, ALL_COURSES, get_careers_for_course
 
@@ -289,6 +289,9 @@ def chat_api():
     careers_list = list(get_careers_for_course(degree, branch).keys())
     reply = get_smart_reply(msg, degree, branch, careers_list)
     return jsonify({"reply": reply})
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('static', 'sitemap.xml')
 
 if __name__ == "__main__":
     init_db()
