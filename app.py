@@ -289,9 +289,19 @@ def chat_api():
     careers_list = list(get_careers_for_course(degree, branch).keys())
     reply = get_smart_reply(msg, degree, branch, careers_list)
     return jsonify({"reply": reply})
-@app.route('/sitemap.xml')
+@app.route("/sitemap.xml")
 def sitemap():
-    return send_from_directory('static', 'sitemap.xml')
+    return '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url><loc>https://ai-career-navigator.onrender.com/</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/register</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/login</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/dashboard</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/careers</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/skillgap</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/roadmap</loc></url>
+    <url><loc>https://ai-career-navigator.onrender.com/chatbot</loc></url>
+</urlset>''', 200, {'Content-Type': 'application/xml'}
 
 if __name__ == "__main__":
     init_db()
