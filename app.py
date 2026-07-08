@@ -303,6 +303,13 @@ def sitemap():
     <url><loc>https://ai-career-navigator.onrender.com/chatbot</loc></url>
 </urlset>''', 200, {'Content-Type': 'application/xml'}
 
+@app.route("/robots.txt")
+def robots():
+    return '''User-agent: *
+Allow: /
+Sitemap: https://ai-career-navigator-b18z.onrender.com/sitemap.xml''', 200, {'Content-Type': 'text/plain'}
+
+
 if __name__ == "__main__":
     init_db()
     print("\n✅ AI Career Navigator running at http://localhost:5000\n")
